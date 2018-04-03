@@ -8,9 +8,9 @@ use Yoanm\JsonRpcServer\Domain\Model\MethodResolverInterface;
 use Yoanm\JsonRpcServerPsr11Resolver\Domain\Model\ServiceNameResolverInterface;
 
 /**
- * Class ContainerJsonRpcMethodResolver
+ * Class ContainerMethodResolver
  */
-class ContainerJsonRpcMethodResolver implements MethodResolverInterface
+class ContainerMethodResolver implements MethodResolverInterface
 {
     /** @var ContainerInterface */
     private $container;
