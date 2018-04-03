@@ -1,0 +1,39 @@
+{
+    "name": "yoanm/jsonrpc-server-sdk-psr11-resolver",
+    "description": "PSR-11 compliant method resolver for jsonrpc-server-sdk",
+    "license": "GPL-3.0-only",
+    "type": "library",
+    "support": {
+        "issues": "https://github.com/yoanm/php-jsonrpc-server-sdk-psr11-resolver/issues"
+    },
+    "authors": [
+        {
+            "name": "Yoanm",
+            "email": "yoanm@users.noreply.github.com",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Yoanm\\JsonRpcServerPsr11Resolver\\App\\": "src/App",
+            "Yoanm\\JsonRpcServerPsr11Resolver\\Domain\\": "src/Domain",
+            "Yoanm\\JsonRpcServerPsr11Resolver\\Infra\\": "src/Infra"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests",
+            "Tests\\Functional\\BehatContext\\": "features/bootstrap"
+        }
+    },
+    "require": {
+        "php": ">7.0",
+        "yoanm/jsonrpc-server-sdk": "~v1.0",
+        "psr/container": "^1.0"
+    },
+    "require-dev": {
+        "behat/behat": "~3.0",
+        "squizlabs/php_codesniffer": "3.*",
+        "phpunit/phpunit": "^6.0"
+    }
+}
