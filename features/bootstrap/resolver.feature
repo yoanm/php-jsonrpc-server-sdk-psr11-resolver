@@ -1,16 +1,16 @@
-Feature: Resolver
+Feature: Method Resolver
 
-  Scenario: Should return the requested method
-    Given there is a service method named "my-method"
-    When I ask for "my-method" method
-    Then I should have "my-method" method
+  Scenario: Should return the requested method from container
+    Given there is a "getDummy" service for "getDummy" JSON-RPC method
+    When I ask for "getDummy" JSON-RPC method
+    Then I should have "getDummy" JSON-RPC method
 
-  Scenario: Should throw an exception if requested method does not exist
-    When I ask for "not-existing-method" method
-    Then I should have a JSON-RPC exception with code "-32601"
+  Scenario: Should return null if requested method does not exist
+    When I ask for "not-existing-method" JSON-RPC method
+    Then I should have a null JSON-RPC method
 
-  Scenario: Should return the requested method when service name prefixer is used
-    Given there is a service method named "my-prefix.my-method"
-    And there is a service name resolver with prefix "my-prefix."
-    When I ask for "my-method" method
-    Then I should have "my-method" method
+  Scenario: Should return the requested method  from container when service name resolver is used
+    Given there is a "a.dummy.method.service" service for "getDummy" JSON-RPC method
+    And ServiceNameResolver will resolve "getDummy" JSON-RPC method to "a.dummy.method.service" service
+    When I ask for "getDummy" JSON-RPC method
+    Then I should have "getDummy" JSON-RPC method
