@@ -2,8 +2,6 @@
 namespace Yoanm\JsonRpcServerPsr11Resolver\Infra\Resolver;
 
 use Psr\Container\ContainerInterface;
-use Yoanm\JsonRpcServer\Domain\Exception\JsonRpcMethodNotFoundException;
-use Yoanm\JsonRpcServer\Domain\Model\JsonRpcMethodInterface;
 use Yoanm\JsonRpcServer\Domain\Model\MethodResolverInterface;
 use Yoanm\JsonRpcServerPsr11Resolver\Domain\Model\ServiceNameResolverInterface;
 
@@ -14,27 +12,42 @@ class ContainerMethodResolver implements MethodResolverInterface
 {
     /** @var ContainerInterface */
     private $container;
-    /** @var ServiceNameResolverInterface */
-    private $serviceNameResolver;
+    /** @var ServiceNameResolverInterface|null */
+    private $serviceNameResolver = null;
 
-    public function __construct(
-        ContainerInterface $container,
-        ServiceNameResolverInterface $serviceNameResolver
-    ) {
+    /**
+     * @param ContainerInterface $container
+     */
+    public function __construct(ContainerInterface $container)
+    {
         $this->container = $container;
-        $this->serviceNameResolver = $serviceNameResolver;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function resolve(string $methodName) : JsonRpcMethodInterface
+    public function resolve(string $methodName)
     {
-        $serviceName = $this->serviceNameResolver->resolve($methodName);
+        $serviceName = null !== $this->serviceNameResolver
+            ? $this->serviceNameResolver->resolve($methodName)
+            : $methodName
+        ;
         if (!$this->container->has($serviceName)) {
-            throw new JsonRpcMethodNotFoundException($methodName);
+            return null;
         }
 
         return $this->container->get($serviceName);
+    }
+
+    /**
+     * @param ServiceNameResolverInterface $serviceNameResolver
+     *
+     * @return ContainerMethodResolver
+     */
+    public function setServiceNameResolver(ServiceNameResolverInterface $serviceNameResolver) : ContainerMethodResolver
+    {
+        $this->serviceNameResolver = $serviceNameResolver;
+
+        return $this;
     }
 }
