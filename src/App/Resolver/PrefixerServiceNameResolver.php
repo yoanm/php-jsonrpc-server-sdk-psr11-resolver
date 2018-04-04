@@ -9,7 +9,7 @@ use Yoanm\JsonRpcServerPsr11Resolver\Domain\Model\ServiceNameResolverInterface;
 class PrefixerServiceNameResolver implements ServiceNameResolverInterface
 {
     /** @var string */
-    private $prefix = '';
+    private $prefix;
 
     /**
      * @param string $prefix

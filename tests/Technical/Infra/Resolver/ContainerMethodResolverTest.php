@@ -31,7 +31,7 @@ class ContainerMethodResolverTest extends TestCase
         $this->resolver = new ContainerMethodResolver($this->container->reveal());
     }
 
-    public function testShouldThrowAnExceptionAndNotShowRealServiceNameWhenResolverIsUsed()
+    public function testShouldThrowAnExceptionIfMethodDoesNotExistAndNotShowRealServiceNameWhenResolverIsUsed()
     {
         $methodName = 'my-method-name';
         $serviceName = 'my-service-name';
