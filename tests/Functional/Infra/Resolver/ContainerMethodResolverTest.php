@@ -5,7 +5,6 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
-use Yoanm\JsonRpcServer\Domain\Exception\JsonRpcMethodNotFoundException;
 use Yoanm\JsonRpcServer\Domain\Model\JsonRpcMethodInterface;
 use Yoanm\JsonRpcServerPsr11Resolver\Domain\Model\ServiceNameResolverInterface;
 use Yoanm\JsonRpcServerPsr11Resolver\Infra\Resolver\ContainerMethodResolver;
@@ -79,7 +78,7 @@ class ContainerMethodResolverTest extends TestCase
         );
     }
 
-    public function testShouldThrowAnExceptionIfMethodDoesNotExist()
+    public function testShouldReturnNullIfMethodDoesNotExist()
     {
         $methodName = 'my-method-name';
 
@@ -87,17 +86,8 @@ class ContainerMethodResolverTest extends TestCase
             ->willReturn(false)
             ->shouldBeCalled();
 
-        $this->expectException(JsonRpcMethodNotFoundException::class);
-
-        try {
-            $this->resolver->resolve($methodName);
-        } catch (JsonRpcMethodNotFoundException $e) {
-            $this->assertSame(
-                $methodName,
-                $e->getMethodName()
-            );
-
-            throw $e;
-        }
+        $this->assertNull(
+            $this->resolver->resolve($methodName)
+        );
     }
 }

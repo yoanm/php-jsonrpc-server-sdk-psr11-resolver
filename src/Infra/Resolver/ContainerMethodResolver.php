@@ -2,8 +2,6 @@
 namespace Yoanm\JsonRpcServerPsr11Resolver\Infra\Resolver;
 
 use Psr\Container\ContainerInterface;
-use Yoanm\JsonRpcServer\Domain\Exception\JsonRpcMethodNotFoundException;
-use Yoanm\JsonRpcServer\Domain\Model\JsonRpcMethodInterface;
 use Yoanm\JsonRpcServer\Domain\Model\MethodResolverInterface;
 use Yoanm\JsonRpcServerPsr11Resolver\Domain\Model\ServiceNameResolverInterface;
 
@@ -28,14 +26,14 @@ class ContainerMethodResolver implements MethodResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function resolve(string $methodName) : JsonRpcMethodInterface
+    public function resolve(string $methodName)
     {
         $serviceName = null !== $this->serviceNameResolver
             ? $this->serviceNameResolver->resolve($methodName)
             : $methodName
         ;
         if (!$this->container->has($serviceName)) {
-            throw new JsonRpcMethodNotFoundException($methodName);
+            return null;
         }
 
         return $this->container->get($serviceName);

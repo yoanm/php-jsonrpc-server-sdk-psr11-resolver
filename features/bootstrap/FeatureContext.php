@@ -9,7 +9,7 @@ use Prophecy\Prophet;
 use Psr\Container\ContainerInterface;
 use Yoanm\JsonRpcServer\Domain\Exception\JsonRpcMethodNotFoundException;
 use Yoanm\JsonRpcServer\Domain\Model\JsonRpcMethodInterface;
-use Yoanm\JsonRpcServerPsr11Resolver\App\Resolver\PrefixerServiceNameResolver;
+use Yoanm\JsonRpcServerPsr11Resolver\Domain\Model\ServiceNameResolverInterface;
 use Yoanm\JsonRpcServerPsr11Resolver\Infra\Resolver\ContainerMethodResolver;
 
 /**
@@ -18,9 +18,9 @@ use Yoanm\JsonRpcServerPsr11Resolver\Infra\Resolver\ContainerMethodResolver;
 class FeatureContext implements Context
 {
     /** @var string[] */
-    private $expectedServiceMethodList = [];
+    private $serviceNameResolverMapping = [];
     /** @var ObjectProphecy[] */
-    private $prophesizedMethodList = [];
+    private $methodList = [];
     /** @var JsonRpcMethodInterface|ObjectProphecy|null */
     private $lastMethod;
     /** @var JsonRpcMethodNotFoundException|null */
@@ -30,8 +30,6 @@ class FeatureContext implements Context
     private $prophet;
     /** @var ObjectProphecy|ContainerInterface */
     private $container;
-    /** @var string|null */
-    private $serviceNamePrefix = null;
 
     /**
      * Initializes context.
@@ -49,23 +47,24 @@ class FeatureContext implements Context
     }
 
     /**
-     * @Given there is a service method named :methodName
+     * @Given there is a :serviceId service for :methodName JSON-RPC method
      */
-    public function givenThereIsAServiceMethodNamed($methodName)
+    public function givenThereIsAServiceMethodNamed($serviceId, $methodeName)
     {
-        $this->expectedServiceMethodList[] = $methodName;
+        $this->createJsonRpcMethod($methodeName);
+        $this->bindJsonRpcMethodToContainerServiceId($methodeName, $serviceId);
     }
 
     /**
-     * @Given there is a service name resolver with prefix :prefix
+     * @Given ServiceNameResolver will resolve :methodName JSON-RPC method to :serviceId service
      */
-    public function givenThereIsAServiceNameResolverWithPrefix($prefix)
+    public function givenServiceNameResolverWillResolveMethodNameToServiceId($methodeName, $serviceId)
     {
-        $this->serviceNamePrefix = $prefix;
+        $this->addServiceNameResolverMapping($methodeName, $serviceId);
     }
 
     /**
-     * @When I ask for :methodName method
+     * @When I ask for :methodName JSON-RPC method
      */
     public function whenIAskForMethod($methodName)
     {
@@ -78,15 +77,17 @@ class FeatureContext implements Context
     }
 
     /**
-     * @Then I should have :methodName method
+     * @Then I should have :methodName JSON-RPC method
+     * @Then I should have a null JSON-RPC method
      */
-    public function thenIShouldHaveMethod($methodName)
+    public function thenIShouldHaveMethod($methodName = null)
     {
         Assert::assertSame(
-            $this->prophesizedMethodList[$methodName]->reveal(),
+            null === $methodName ? $methodName : $this->methodList[$methodName]->reveal(),
             $this->lastMethod
         );
     }
+
     /**
      * @Then I should have a JSON-RPC exception with code :errorCode
      */
@@ -103,34 +104,54 @@ class FeatureContext implements Context
     {
         $resolver = new ContainerMethodResolver($this->container->reveal());
 
-        // Append service name prefixer if a prefix has been defined
-        if ($this->serviceNamePrefix) {
-            $resolver->setServiceNameResolver(
-                new PrefixerServiceNameResolver(
-                    $this->serviceNamePrefix
-                )
-            );
-        }
-
-        // Configure expected service methods
-        foreach($this->expectedServiceMethodList as $serviceName) {
-            $method = $this->prophet->prophesize(JsonRpcMethodInterface::class);
-            $realMethodName = $this->guessRealMethodName($serviceName);
-            $this->prophesizedMethodList[$realMethodName] = $method;
-
-            $this->container->has($serviceName)->willReturn(true);
-            $this->container->get($serviceName)->willReturn($method->reveal());
-        }
+        $this->prophesizeServiceNameResolverIfDefined($resolver);
 
         return $resolver;
     }
 
-    private function guessRealMethodName($methodName)
+    /**
+     * @param string $methodName
+     */
+    private function createJsonRpcMethod(string $methodName)
     {
-        if ($this->serviceNamePrefix) {
-            return preg_replace('/^'.preg_quote($this->serviceNamePrefix).'/', '', $methodName);
-        }
+        $this->methodList[$methodName] = $this->prophet->prophesize(JsonRpcMethodInterface::class);
+    }
 
-        return $methodName;
+    /**
+     * @param $serviceId
+     * @param $methodName
+     */
+    private function bindJsonRpcMethodToContainerServiceId(string $methodName, string $serviceId)
+    {
+        $this->container->has($serviceId)->willReturn(true);
+        $this->container->get($serviceId)->willReturn($this->methodList[$methodName]);
+    }
+
+    /**
+     * @param string $methodeName
+     * @param string $serviceId
+     */
+    private function addServiceNameResolverMapping(string $methodeName, string $serviceId)
+    {
+        $this->serviceNameResolverMapping[$methodeName] = $serviceId;
+    }
+
+    /**
+     * @return ObjectProphecy
+     */
+    private function prophesizeServiceNameResolverIfDefined(ContainerMethodResolver $resolver)
+    {
+        // Append service name resolver if some mapping have been defined
+        if (count($this->serviceNameResolverMapping)) {
+            /** @var ServiceNameResolverInterface|ObjectProphecy $serviceNameResolver */
+            $serviceNameResolver = $this->prophet->prophesize(ServiceNameResolverInterface::class);
+            // Prophesize method calls based on given mapping
+            foreach ($this->serviceNameResolverMapping as $methodName => $serviceId) {
+                $serviceNameResolver->resolve($methodName)
+                    ->willReturn($serviceId);
+            }
+
+            $resolver->setServiceNameResolver($serviceNameResolver->reveal());
+        }
     }
 }
