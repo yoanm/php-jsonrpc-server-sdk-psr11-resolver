@@ -14,15 +14,15 @@ class ContainerMethodResolver implements MethodResolverInterface
 {
     /** @var ContainerInterface */
     private $container;
-    /** @var ServiceNameResolverInterface */
-    private $serviceNameResolver;
+    /** @var ServiceNameResolverInterface|null */
+    private $serviceNameResolver = null;
 
-    public function __construct(
-        ContainerInterface $container,
-        ServiceNameResolverInterface $serviceNameResolver
-    ) {
+    /**
+     * @param ContainerInterface $container
+     */
+    public function __construct(ContainerInterface $container)
+    {
         $this->container = $container;
-        $this->serviceNameResolver = $serviceNameResolver;
     }
 
     /**
@@ -30,11 +30,26 @@ class ContainerMethodResolver implements MethodResolverInterface
      */
     public function resolve(string $methodName) : JsonRpcMethodInterface
     {
-        $serviceName = $this->serviceNameResolver->resolve($methodName);
+        $serviceName = null !== $this->serviceNameResolver
+            ? $this->serviceNameResolver->resolve($methodName)
+            : $methodName
+        ;
         if (!$this->container->has($serviceName)) {
             throw new JsonRpcMethodNotFoundException($methodName);
         }
 
         return $this->container->get($serviceName);
+    }
+
+    /**
+     * @param ServiceNameResolverInterface $serviceNameResolver
+     *
+     * @return ContainerMethodResolver
+     */
+    public function setServiceNameResolver(ServiceNameResolverInterface $serviceNameResolver) : ContainerMethodResolver
+    {
+        $this->serviceNameResolver = $serviceNameResolver;
+
+        return $this;
     }
 }

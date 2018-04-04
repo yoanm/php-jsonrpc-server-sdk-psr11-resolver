@@ -9,7 +9,7 @@ use Prophecy\Prophet;
 use Psr\Container\ContainerInterface;
 use Yoanm\JsonRpcServer\Domain\Exception\JsonRpcMethodNotFoundException;
 use Yoanm\JsonRpcServer\Domain\Model\JsonRpcMethodInterface;
-use Yoanm\JsonRpcServerPsr11Resolver\App\Resolver\DefaultServiceNameResolver;
+use Yoanm\JsonRpcServerPsr11Resolver\App\Resolver\PrefixerServiceNameResolver;
 use Yoanm\JsonRpcServerPsr11Resolver\Infra\Resolver\ContainerMethodResolver;
 
 /**
@@ -17,9 +17,8 @@ use Yoanm\JsonRpcServerPsr11Resolver\Infra\Resolver\ContainerMethodResolver;
  */
 class FeatureContext implements Context
 {
-    /** @var ContainerMethodResolver */
-    private $methodResolver;
-
+    /** @var string[] */
+    private $expectedServiceMethodList = [];
     /** @var ObjectProphecy[] */
     private $prophesizedMethodList = [];
     /** @var JsonRpcMethodInterface|ObjectProphecy|null */
@@ -31,6 +30,8 @@ class FeatureContext implements Context
     private $prophet;
     /** @var ObjectProphecy|ContainerInterface */
     private $container;
+    /** @var string|null */
+    private $serviceNamePrefix = null;
 
     /**
      * Initializes context.
@@ -42,23 +43,25 @@ class FeatureContext implements Context
     public function __construct()
     {
         $this->prophet = new Prophet();
-
         $this->container = $this->prophet->prophesize(ContainerInterface::class);
         // By default return false
         $this->container->has(Argument::cetera())->willReturn(false);
-
-        $this->methodResolver = new ContainerMethodResolver(
-            $this->container->reveal(),
-            new DefaultServiceNameResolver()
-        );
     }
 
     /**
-     * @Given there is a method named :methodName
+     * @Given there is a service method named :methodName
      */
-    public function givenThereIsAMethodNamed($methodName)
+    public function givenThereIsAServiceMethodNamed($methodName)
     {
-        $this->prophesizedMethodList[$methodName] = $this->prophesizeMethod($methodName);
+        $this->expectedServiceMethodList[] = $methodName;
+    }
+
+    /**
+     * @Given there is a service name resolver with prefix :prefix
+     */
+    public function givenThereIsAServiceNameResolverWithPrefix($prefix)
+    {
+        $this->serviceNamePrefix = $prefix;
     }
 
     /**
@@ -68,7 +71,7 @@ class FeatureContext implements Context
     {
         $this->lastException = $this->lastMethod = null;
         try {
-            $this->lastMethod = $this->methodResolver->resolve($methodName);
+            $this->lastMethod = $this->getMethodResolver()->resolve($methodName);
         } catch (JsonRpcMethodNotFoundException $exception) {
             $this->lastException = $exception;
         }
@@ -94,17 +97,40 @@ class FeatureContext implements Context
     }
 
     /**
-     * @param string $methodName
-     *
-     * @return ObjectProphecy
+     * @return ContainerMethodResolver
      */
-    private function prophesizeMethod(string $methodName)
+    private function getMethodResolver() : ContainerMethodResolver
     {
-        $method = $this->prophet->prophesize(JsonRpcMethodInterface::class);
+        $resolver = new ContainerMethodResolver($this->container->reveal());
 
-        $this->container->has($methodName)->willReturn(true);
-        $this->container->get($methodName)->willReturn($method->reveal());
+        // Append service name prefixer if a prefix has been defined
+        if ($this->serviceNamePrefix) {
+            $resolver->setServiceNameResolver(
+                new PrefixerServiceNameResolver(
+                    $this->serviceNamePrefix
+                )
+            );
+        }
 
-        return $method;
+        // Configure expected service methods
+        foreach($this->expectedServiceMethodList as $serviceName) {
+            $method = $this->prophet->prophesize(JsonRpcMethodInterface::class);
+            $realMethodName = $this->guessRealMethodName($serviceName);
+            $this->prophesizedMethodList[$realMethodName] = $method;
+
+            $this->container->has($serviceName)->willReturn(true);
+            $this->container->get($serviceName)->willReturn($method->reveal());
+        }
+
+        return $resolver;
+    }
+
+    private function guessRealMethodName($methodName)
+    {
+        if ($this->serviceNamePrefix) {
+            return preg_replace('/^'.preg_quote($this->serviceNamePrefix).'/', '', $methodName);
+        }
+
+        return $methodName;
     }
 }
