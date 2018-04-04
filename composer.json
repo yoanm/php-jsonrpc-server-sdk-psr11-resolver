@@ -28,7 +28,7 @@
     },
     "require": {
         "php": ">7.0",
-        "yoanm/jsonrpc-server-sdk": "~v1.0",
+        "yoanm/jsonrpc-server-sdk": "~1.2",
         "psr/container": "^1.0"
     },
     "require-dev": {
