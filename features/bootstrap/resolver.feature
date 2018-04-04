@@ -10,7 +10,7 @@ Feature: Resolver
     Then I should have a JSON-RPC exception with code "-32601"
 
   Scenario: Should return the requested method when service name prefixer is used
-    Given there is a service name resolver with prefix "my-prefix."
-    And there is a service method named "my-method" with prefix "my-prefix."
+    Given there is a service method named "my-prefix.my-method"
+    And there is a service name resolver with prefix "my-prefix."
     When I ask for "my-method" method
     Then I should have "my-method" method
