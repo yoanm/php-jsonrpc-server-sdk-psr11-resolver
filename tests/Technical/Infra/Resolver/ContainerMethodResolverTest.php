@@ -1,5 +1,5 @@
 <?php
-namespace Tests\Functional\Infra\Resolver;
+namespace Tests\Techincal\Infra\Resolver;
 
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -31,67 +31,27 @@ class ContainerMethodResolverTest extends TestCase
         $this->resolver = new ContainerMethodResolver($this->container->reveal());
     }
 
-    public function testShouldLoadServiceFromContainerBasedOnMethodNameOnly()
-    {
-        $methodName = 'my-method-name';
-
-        $method = $this->prophesize(JsonRpcMethodInterface::class);
-
-        $this->container->has($methodName)
-            ->willReturn(true)
-            ->shouldBeCalled();
-
-        $this->container->get($methodName)
-            ->willReturn($method->reveal())
-            ->shouldBeCalled();
-
-        $this->assertSame(
-            $method->reveal(),
-            $this->resolver->resolve($methodName)
-        );
-    }
-
-
-    public function testShouldResolveServiceNameAndLoadItFromContainer()
+    public function testShouldThrowAnExceptionAndNotShowRealServiceNameWhenResolverIsUsed()
     {
         $methodName = 'my-method-name';
         $serviceName = 'my-service-name';
-
-        $method = $this->prophesize(JsonRpcMethodInterface::class);
 
         $this->serviceNameResolver->resolve($methodName)
             ->willReturn($serviceName)
             ->shouldBeCalled();
 
         $this->container->has($serviceName)
-            ->willReturn(true)
-            ->shouldBeCalled();
-
-        $this->container->get($serviceName)
-            ->willReturn($method->reveal())
+            ->willReturn(false)
             ->shouldBeCalled();
 
         $this->resolver->setServiceNameResolver($this->serviceNameResolver->reveal());
-
-        $this->assertSame(
-            $method->reveal(),
-            $this->resolver->resolve($methodName)
-        );
-    }
-
-    public function testShouldThrowAnExceptionIfMethodDoesNotExist()
-    {
-        $methodName = 'my-method-name';
-
-        $this->container->has($methodName)
-            ->willReturn(false)
-            ->shouldBeCalled();
 
         $this->expectException(JsonRpcMethodNotFoundException::class);
 
         try {
             $this->resolver->resolve($methodName);
         } catch (JsonRpcMethodNotFoundException $e) {
+            // Assert it's the method name and not the resolved service name
             $this->assertSame(
                 $methodName,
                 $e->getMethodName()

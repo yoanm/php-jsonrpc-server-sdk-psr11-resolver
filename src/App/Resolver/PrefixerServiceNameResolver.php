@@ -4,9 +4,9 @@ namespace Yoanm\JsonRpcServerPsr11Resolver\App\Resolver;
 use Yoanm\JsonRpcServerPsr11Resolver\Domain\Model\ServiceNameResolverInterface;
 
 /**
- * Class ContainerMethodResolver
+ * Class PrefixerServiceNameResolver
  */
-class DefaultServiceNameResolver implements ServiceNameResolverInterface
+class PrefixerServiceNameResolver implements ServiceNameResolverInterface
 {
     /** @var string */
     private $prefix = '';
@@ -14,7 +14,7 @@ class DefaultServiceNameResolver implements ServiceNameResolverInterface
     /**
      * @param string $prefix
      */
-    public function __construct(string $prefix = '')
+    public function __construct(string $prefix)
     {
         $this->prefix = $prefix;
     }
