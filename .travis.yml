@@ -12,8 +12,8 @@ env:
     PHPCS_REPORT_STYLE: 'full'
     COMPOSER_OPTIONS: '--optimize-autoloader'
   matrix:
-    SDK_VERSION: '~1.2'
-    SDK_VERSION: '~2.0'
+    - SDK_VERSION: '~1.2'
+    - SDK_VERSION: '~2.0'
 
 sudo: false
 
