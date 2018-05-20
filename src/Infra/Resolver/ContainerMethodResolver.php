@@ -2,13 +2,13 @@
 namespace Yoanm\JsonRpcServerPsr11Resolver\Infra\Resolver;
 
 use Psr\Container\ContainerInterface;
-use Yoanm\JsonRpcServer\Domain\Model\MethodResolverInterface;
+use Yoanm\JsonRpcServer\Domain\JsonRpcMethodResolverInterface;
 use Yoanm\JsonRpcServerPsr11Resolver\Domain\Model\ServiceNameResolverInterface;
 
 /**
  * Class ContainerMethodResolver
  */
-class ContainerMethodResolver implements MethodResolverInterface
+class ContainerMethodResolver implements JsonRpcMethodResolverInterface
 {
     /** @var ContainerInterface */
     private $container;
@@ -32,6 +32,7 @@ class ContainerMethodResolver implements MethodResolverInterface
             ? $this->serviceNameResolver->resolve($methodName)
             : $methodName
         ;
+
         if (!$this->container->has($serviceName)) {
             return null;
         }
