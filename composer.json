@@ -1,7 +1,7 @@
 {
     "name": "yoanm/jsonrpc-server-sdk-psr11-resolver",
     "description": "PSR-11 compliant method resolver for jsonrpc-server-sdk",
-    "license": "GPL-3.0-only",
+    "license": "MIT",
     "type": "library",
     "minimum-stability": "dev",
     "support": {
@@ -16,9 +16,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Yoanm\\JsonRpcServerPsr11Resolver\\App\\": "src/App",
-            "Yoanm\\JsonRpcServerPsr11Resolver\\Domain\\": "src/Domain",
-            "Yoanm\\JsonRpcServerPsr11Resolver\\Infra\\": "src/Infra"
+            "Yoanm\\JsonRpcServerPsr11Resolver\\": "src"
         }
     },
     "autoload-dev": {
