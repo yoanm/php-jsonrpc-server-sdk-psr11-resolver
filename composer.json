@@ -3,6 +3,7 @@
     "description": "PSR-11 compliant method resolver for jsonrpc-server-sdk",
     "license": "GPL-3.0-only",
     "type": "library",
+    "minimum-stability": "dev",
     "support": {
         "issues": "https://github.com/yoanm/php-jsonrpc-server-sdk-psr11-resolver/issues"
     },
@@ -27,8 +28,8 @@
         }
     },
     "require": {
-        "php": ">7.0",
-        "yoanm/jsonrpc-server-sdk": "~1.2 || ~2.0",
+        "php": ">=7.1",
+        "yoanm/jsonrpc-server-sdk": "dev-release/3.0.0",
         "psr/container": "^1.0"
     },
     "require-dev": {
