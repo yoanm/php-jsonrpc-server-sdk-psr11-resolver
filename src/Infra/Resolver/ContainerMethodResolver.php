@@ -2,8 +2,8 @@
 namespace Yoanm\JsonRpcServerPsr11Resolver\Infra\Resolver;
 
 use Psr\Container\ContainerInterface;
+use Yoanm\JsonRpcServer\Domain\JsonRpcMethodInterface;
 use Yoanm\JsonRpcServer\Domain\JsonRpcMethodResolverInterface;
-use Yoanm\JsonRpcServerPsr11Resolver\Domain\Model\ServiceNameResolverInterface;
 
 /**
  * Class ContainerMethodResolver
@@ -12,8 +12,8 @@ class ContainerMethodResolver implements JsonRpcMethodResolverInterface
 {
     /** @var ContainerInterface */
     private $container;
-    /** @var ServiceNameResolverInterface|null */
-    private $serviceNameResolver = null;
+    /** @var string[] */
+    private $methodMappingList = [];
 
     /**
      * @param ContainerInterface $container
@@ -26,29 +26,35 @@ class ContainerMethodResolver implements JsonRpcMethodResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function resolve(string $methodName)
+    public function resolve(string $methodName) : ?JsonRpcMethodInterface
     {
-        $serviceName = null !== $this->serviceNameResolver
-            ? $this->serviceNameResolver->resolve($methodName)
-            : $methodName
+        $serviceName = $this->resolveMethodNameToServiceId($methodName);
+
+        return $this->container->has($serviceName)
+            ? $this->container->get($serviceName)
+            : null
         ;
-
-        if (!$this->container->has($serviceName)) {
-            return null;
-        }
-
-        return $this->container->get($serviceName);
     }
 
     /**
-     * @param ServiceNameResolverInterface $serviceNameResolver
-     *
-     * @return ContainerMethodResolver
+     * @param string $methodName
+     * @param string $containerServiceId
      */
-    public function setServiceNameResolver(ServiceNameResolverInterface $serviceNameResolver) : ContainerMethodResolver
+    public function addJsonRpcMethodMapping(string $methodName, string $containerServiceId) : void
     {
-        $this->serviceNameResolver = $serviceNameResolver;
+        $this->methodMappingList[$methodName] = $containerServiceId;
+    }
 
-        return $this;
+    /**
+     * @param string $methodName
+     *
+     * @return string Method's identifier (returns original method name if no mapping defined)
+     */
+    protected function resolveMethodNameToServiceId(string $methodName) : string
+    {
+        return isset($this->methodMappingList[$methodName])
+            ? $this->methodMappingList[$methodName]
+            : $methodName
+        ;
     }
 }
