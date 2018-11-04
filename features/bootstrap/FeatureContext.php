@@ -104,7 +104,7 @@ class FeatureContext implements Context
     }
 
     /**
-     * @return ObjectProphecy
+     * @param ContainerMethodResolver $resolver
      */
     private function setMethodsMapping(ContainerMethodResolver $resolver)
     {
