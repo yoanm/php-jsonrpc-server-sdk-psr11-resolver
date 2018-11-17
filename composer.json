@@ -1,39 +1,44 @@
 {
-    "name": "yoanm/jsonrpc-server-sdk-psr11-resolver",
-    "description": "PSR-11 compliant method resolver for jsonrpc-server-sdk",
-    "license": "MIT",
-    "type": "library",
-    "minimum-stability": "dev",
-    "support": {
-        "issues": "https://github.com/yoanm/php-jsonrpc-server-sdk-psr11-resolver/issues"
-    },
-    "authors": [
-        {
-            "name": "Yoanm",
-            "email": "yoanm@users.noreply.github.com",
-            "role": "Developer"
-        }
-    ],
-    "autoload": {
-        "psr-4": {
-            "Yoanm\\JsonRpcServerPsr11Resolver\\": "src"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests",
-            "Tests\\Functional\\BehatContext\\": "features/bootstrap"
-        }
-    },
-    "require": {
-        "php": ">=7.1",
-        "yoanm/jsonrpc-server-sdk": "dev-release/3.0.0",
-        "psr/container": "^1.0"
-    },
-    "require-dev": {
-        "behat/behat": "~3.0",
-        "squizlabs/php_codesniffer": "3.*",
-        "phpunit/phpunit": "^6.0 || ^7.0",
-        "yoanm/php-unit-extended": "~1.0"
+  "name": "yoanm/jsonrpc-server-sdk-psr11-resolver",
+  "description": "PSR-11 compliant method resolver for yoanm/jsonrpc-server-sdk",
+  "license": "MIT",
+  "type": "library",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://github.com/yoanm/php-jsonrpc-server-sdk-psr11-resolver/issues"
+  },
+  "authors": [
+    {
+      "name": "Yoanm",
+      "email": "yoanm@users.noreply.github.com",
+      "role": "Developer"
     }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Yoanm\\JsonRpcServerPsr11Resolver\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests",
+      "Tests\\Functional\\BehatContext\\": "features/bootstrap"
+    }
+  },
+  "suggest": {
+    "yoanm/jsonrpc-server-sdk": "Server SDK to convert a json-rpc request string into json-rpc response string",
+    "yoanm/symfony-jsonrpc-server-psr11-resolver": "Symfony bundle integration",
+    "yoanm/symfony-jsonrpc-http-server": "JSON-RPC HTTP Symfony server Bundle"
+  },
+  "require": {
+    "php": ">=7.1",
+    "yoanm/jsonrpc-server-sdk": "dev-release/3.0.0",
+    "psr/container": "^1.0"
+  },
+  "require-dev": {
+    "behat/behat": "~3.0",
+    "squizlabs/php_codesniffer": "3.*",
+    "phpunit/phpunit": "^6.0 || ^7.0",
+    "yoanm/php-unit-extended": "~1.0"
+  }
 }
