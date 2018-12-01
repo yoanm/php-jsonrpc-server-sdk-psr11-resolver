@@ -7,7 +7,7 @@
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/yoanm/jsonrpc-server-sdk-psr11-resolver.svg)](https://packagist.org/packages/yoanm/jsonrpc-server-sdk-psr11-resolver) [![Packagist PHP version](https://img.shields.io/packagist/php-v/yoanm/jsonrpc-server-sdk-psr11-resolver.svg)](https://packagist.org/packages/yoanm/jsonrpc-server-sdk-psr11-resolver)
 
-PSR-11 compliant method resolver for [`jsonrpc-server-sdk`](https://github.com/yoanm/php-jsonrpc-server-sdk)
+PSR-11 compliant method resolver for [`yoanm/jsonrpc-server-sdk`](https://github.com/yoanm/php-jsonrpc-server-sdk)
 
 Resolver will simply load the method from container if it exists.
 
