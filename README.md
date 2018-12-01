@@ -36,7 +36,6 @@ Advantage of loading the method only when ask is that all underlying autoloading
  // Will return null
  $resolver->resolve('unknown');
  
- 
  // You can directly ask for a service id, no need to map it
  // Will return the service stored inside the container under the name "service.method.c" (if exists)
  $resolver->resolve('service.method.c');
