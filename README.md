@@ -9,8 +9,38 @@
 
 PSR-11 compliant method resolver for [`jsonrpc-server-sdk`](https://github.com/yoanm/php-jsonrpc-server-sdk)
 
+Resolver will simply load the method from container if it exists.
+
+Advantage of loading the method only when ask is that all underlying autoloading will be done only when required and only for the given method. Instead of instanciating all methods (and so their dependencies, dependencies of dependencies, etc) and store them inside a simple array uselessly on each request.
+
 ## How to use
 
+ - Inject the container
+ ```php
+ use Yoanm\JsonRpcServerPsr11Resolver\Infra\Resolver\ContainerMethodResolver;
+ 
+ $resolver = new ContainerMethodResolver($psr11ContainerInterface);
+ ```
+ - Inject your mapping
+ 
+ ```php
+ $resolver->addJsonRpcMethodMapping('jsonrpc.method_name.a', 'service.method.a');
+ $resolver->addJsonRpcMethodMapping('jsonrpc.method_name.b', 'service.method.b');
+ ...
+ ```
+ - And use it
+ ```php
+ // Will return the service stored inside the container under the name "service.method.a"
+ $resolver->resolve('jsonrpc.method_name.a');
+ 
+ // Will return null
+ $resolver->resolve('unknown');
+ 
+ 
+ // You can directly ask for a service id, no need to map it
+ // Will return the service stored inside the container under the name "service.method.c" (if exists)
+ $resolver->resolve('service.method.c');
+ ```
 
 ## Contributing
 See [contributing note](./CONTRIBUTING.md)
